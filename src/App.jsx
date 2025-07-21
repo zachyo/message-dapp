@@ -25,6 +25,7 @@ function App() {
       if (window.ethereum) {
         setSettingBool(true);
         setHash("");
+        setMessage("");
         await requestAccount();
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
