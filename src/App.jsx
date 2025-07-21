@@ -7,6 +7,8 @@ const contractAddress = "0x9D1eb059977D71E1A21BdebD1F700d4A39744A70";
 function App() {
   const [text, setText] = useState("");
   const [hash, setHash] = useState("");
+  const [settingBool, setSettingBool] = useState(false);
+  const [getBool, setGetBool] = useState(false);
   const [message, setMessage] = useState("");
 
   async function requestAccount() {
@@ -21,6 +23,7 @@ function App() {
       }
 
       if (window.ethereum) {
+        setSettingBool(true);
         await requestAccount();
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -29,19 +32,23 @@ function App() {
         const tx = await contract.setMessage(text);
         const txReceipt = await tx.wait();
         setHash(tx.hash);
+        setText("");
+        setSettingBool(false);
         console.log("Transaction successful:", txReceipt);
       } else {
         console.error(
           "MetaMask not found. Please install MetaMask to use this application."
         );
+        setSettingBool(false);
       }
     } catch (error) {
       console.error("Error setting message:", error);
+      setSettingBool(false);
       alert(error.message || error);
     }
   };
 
-  const handleGet = async () => {}
+  const handleGet = async () => {};
 
   return (
     <div style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
@@ -53,11 +60,18 @@ function App() {
         onChange={(e) => setText(e.target.value)}
         style={{ marginBottom: "1rem", padding: "0.5rem", fontSize: "1rem" }}
       />
-      <button onClick={handleSet}>Set Message</button>
-      {hash && <p style={{ marginTop: "1rem" }}>Transaction successful: {hash}</p>}
-      <button onClick={handleGet} style={{marginTop: "1rem"}}>Get Message</button>
-      {message && <p style={{ marginTop: "1rem" }}>Message retrieved: {message}</p>}
-
+      <button onClick={handleSet}>{settingBool ? "Setting..." : "Set Message"}</button>
+      {hash && (
+        <p style={{ marginTop: "1rem", wordBreak: "break-all" }}>
+          Transaction successful: {hash}
+        </p>
+      )}
+      <button onClick={handleGet} style={{ marginTop: "1rem" }}>
+        {getBool ? "Getting..." : "Get Message"}
+      </button>
+      {message && (
+        <p style={{ marginTop: "1rem" }}>Message retrieved: {message}</p>
+      )}
     </div>
   );
 }
