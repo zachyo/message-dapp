@@ -1,12 +1,13 @@
-# React + Vite
+# Message dApp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This dApp is a web application used to set and retrieve a message stored on the contract
 
-Currently, two official plugins are available:
+Currently, it has two functions
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **setMessage** which is used to write the messagee to the contract. It takes the message as a string.
+- **getMessage** which is used to get the message from the contract.
 
-## Expanding the ESLint configuration
+## Technologies used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React** 
+- **Solidity**
