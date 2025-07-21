@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import abi from "./abi.json";
+import { ethers } from "ethers";
+
+const contractAddress = "0x9D1eb059977D71E1A21BdebD1F700d4A39744A70";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [text, setText] = useState("");
+  const [hash, setHash] = useState("");
+  const [message, setMessage] = useState("");
+
+  async function requestAccount() {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+  }
+
+  const handleSet = async () => {
+    try {
+      if (!text) {
+        alert("Please enter a message before setting.");
+        return;
+      }
+
+      if (window.ethereum) {
+        await requestAccount();
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, abi, signer);
+        console.log("Setting message:", text);
+        const tx = await contract.setMessage(text);
+        const txReceipt = await tx.wait();
+        setHash(tx.hash);
+        console.log("Transaction successful:", txReceipt);
+      } else {
+        console.error(
+          "MetaMask not found. Please install MetaMask to use this application."
+        );
+      }
+    } catch (error) {
+      console.error("Error setting message:", error);
+      alert(error.message || error);
+    }
+  };
+
+  const handleGet = async () => {}
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
+      <h1>Set Message on Smart Contract</h1>
+      <input
+        type="text"
+        placeholder="Set message"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        style={{ marginBottom: "1rem", padding: "0.5rem", fontSize: "1rem" }}
+      />
+      <button onClick={handleSet}>Set Message</button>
+      {hash && <p style={{ marginTop: "1rem" }}>Transaction successful: {hash}</p>}
+      <button onClick={handleGet} style={{marginTop: "1rem"}}>Get Message</button>
+      {message && <p style={{ marginTop: "1rem" }}>Message retrieved: {message}</p>}
+
+    </div>
+  );
 }
 
-export default App
+export default App;
