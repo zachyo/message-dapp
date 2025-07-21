@@ -48,7 +48,32 @@ function App() {
     }
   };
 
-  const handleGet = async () => {};
+  const handleGet = async () => {
+     try {
+    
+
+      if (window.ethereum) {
+        setGetBool(true);
+        await requestAccount();
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, abi, signer);
+        console.log("Getting message:", text);
+        const message = await contract.getMessage();
+        setMessage(message);
+        setGetBool(false);
+      } else {
+        console.error(
+          "MetaMask not found. Please install MetaMask to use this application."
+        );
+        setGetBool(false);
+      }
+    } catch (error) {
+      console.error("Error getting message:", error);
+      setGetBool(false);
+      alert(error.message || error);
+    }
+  };
 
   return (
     <div style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
