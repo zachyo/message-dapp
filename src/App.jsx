@@ -2,7 +2,8 @@ import { useState } from "react";
 import abi from "./abi.json";
 import { ethers } from "ethers";
 
-const contractAddress = "0x9D1eb059977D71E1A21BdebD1F700d4A39744A70";
+// const contractAddress = "0x9D1eb059977D71E1A21BdebD1F700d4A39744A70";
+const contractAddress = "0x684449C1726B1aE0006a66136542Ce4fdB78c8fD";
 
 function App() {
   const [text, setText] = useState("");
@@ -10,6 +11,8 @@ function App() {
   const [settingBool, setSettingBool] = useState(false);
   const [getBool, setGetBool] = useState(false);
   const [message, setMessage] = useState("");
+  const [settingError, setSettingError] = useState("");
+  const [gettingError, setGettingError] = useState("");
 
   async function requestAccount() {
     await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -26,6 +29,7 @@ function App() {
         setSettingBool(true);
         setHash("");
         setMessage("");
+        setSettingError("")
         await requestAccount();
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -36,17 +40,19 @@ function App() {
         setHash(tx.hash);
         setText("");
         setSettingBool(false);
+        setSettingError("");
         console.log("Transaction successful:", txReceipt);
       } else {
+        setSettingError("Error : MetaMask not found. Please install MetaMask to use this application.");
         console.error(
           "MetaMask not found. Please install MetaMask to use this application."
         );
         setSettingBool(false);
       }
     } catch (error) {
-      console.error("Error setting message:", error);
-      setSettingBool(false);
-      alert(error.message || error);
+      console.error("Error setting message:", error?.info?.error?.message);
+      setSettingError(`Error setting message: ${error?.info?.error?.message || error}`);
+      setSettingBool(false);      
     }
   };
 
@@ -56,6 +62,8 @@ function App() {
 
       if (window.ethereum) {
         setGetBool(true);
+        setGettingError("");
+        setMessage("");
         await requestAccount();
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -64,16 +72,18 @@ function App() {
         const message = await contract.getMessage();
         setMessage(message);
         setGetBool(false);
+        setGettingError("");
       } else {
         console.error(
           "MetaMask not found. Please install MetaMask to use this application."
         );
+        setGettingError("Error : MetaMask not found. Please install MetaMask to use this application.");
         setGetBool(false);
       }
     } catch (error) {
       console.error("Error getting message:", error);
       setGetBool(false);
-      alert(error.message || error);
+      setGettingError(`Error getting message: ${error?.info?.error?.message || error}`);
     }
   };
 
@@ -88,6 +98,9 @@ function App() {
         style={{ marginBottom: "1rem", padding: "0.5rem", fontSize: "1rem" }}
       />
       <button onClick={handleSet}>{settingBool ? "Setting..." : "Set Message"}</button>
+      {settingError && (
+        <p style={{ marginTop: "1rem", color: "red", wordBreak: "break-all" }}>{settingError}</p>
+      )}
       {hash && (
         <p style={{ marginTop: "1rem", wordBreak: "break-all" }}>
           Transaction successful: {hash}
@@ -98,6 +111,9 @@ function App() {
       </button>
       {message && (
         <p style={{ marginTop: "1rem" }}>Message retrieved: {message}</p>
+      )}
+      {gettingError && (
+        <p style={{ marginTop: "1rem", color: "red" }}>Error : {gettingError}</p>
       )}
     </div>
   );
